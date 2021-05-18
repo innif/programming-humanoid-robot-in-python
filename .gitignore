@@ -53,3 +53,11 @@ docs/_build/
 # PyBuilder
 target/
 .ipynb_checkpoints
+
+joint_control/venv/
+
+joint_control/.idea/
+
+joint_control/.vscode/
+
+.idea/

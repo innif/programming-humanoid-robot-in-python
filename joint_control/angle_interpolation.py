@@ -21,8 +21,8 @@
 
 
 from pid import PIDAgent
-from keyframes import hello
-
+from keyframes import wipe_forehead as keyframe
+from software_installation.spark_agent import Perception
 
 class AngleInterpolationAgent(PIDAgent):
     def __init__(self, simspark_ip='localhost',
@@ -32,19 +32,69 @@ class AngleInterpolationAgent(PIDAgent):
                  sync_mode=True):
         super(AngleInterpolationAgent, self).__init__(simspark_ip, simspark_port, teamname, player_id, sync_mode)
         self.keyframes = ([], [], [])
+        self.start_time = None
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes, perception)
         self.target_joints.update(target_joints)
         return super(AngleInterpolationAgent, self).think(perception)
 
-    def angle_interpolation(self, keyframes, perception):
+    def angle_interpolation(self, keyframes, perception: Perception):
         target_joints = {}
-        # YOUR CODE HERE
+
+        name_list, time_list, key_list = keyframes
+
+        if self.start_time is None:
+            self.start_time = perception.time
+        time_now = perception.time - self.start_time
+
+        finished_joints = []
+
+        for name_index, name in enumerate(name_list):  # for each joint
+            times = time_list[name_index]
+            keys = key_list[name_index]
+
+            if time_now > times[-1]:
+                finished_joints.append(name)
+                continue
+
+            current_time_index = 0
+            time_next = 0
+            time_prev = 0
+            for j, time in enumerate(times):
+                if time > time_now:
+                    current_time_index = j
+                    time_next = time
+                    break
+                time_prev = time
+
+            p0 = perception.joint.get(name)
+            if p0 is None:
+                p0 = 0
+            p1 = p0
+
+            if current_time_index > 0:  # [float angle, Handle1, Handle2]
+                p0 = keys[current_time_index - 1][0]  # start-point
+                p1 = p0 + keys[current_time_index - 1][2][2]  # start-point Handle angle
+
+            p3 = keys[current_time_index][0]  # dest-point
+            p2 = p3 + keys[current_time_index][1][2]  # dest-point Handle angle
+
+            t_diff = time_next - time_prev
+            i = (time_now - time_prev) / t_diff
+
+            b = 0
+            b += (1-i)**3 * p0
+            b += (1-i)**2 * 3*i*p1
+            b += (1-i) * 3*(i**2)*p2
+            b += (i**3)*p3
+
+            target_joints[name] = b
 
         return target_joints
 
+
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = hello()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = keyframe()  # CHANGE DIFFERENT KEYFRAMES
     agent.run()

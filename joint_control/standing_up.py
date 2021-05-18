@@ -5,7 +5,7 @@
 
 '''
 
-
+from joint_control.keyframes import rightBellyToStand, leftBellyToStand, rightBackToStand, leftBackToStand
 from recognize_posture import PostureRecognitionAgent
 
 
@@ -16,7 +16,10 @@ class StandingUpAgent(PostureRecognitionAgent):
 
     def standing_up(self):
         posture = self.posture
-        # YOUR CODE HERE
+        if posture == "Back":
+            self.keyframes = leftBackToStand()
+        if posture == "Belly":
+            self.keyframes = leftBellyToStand()
 
 
 class TestStandingUpAgent(StandingUpAgent):
