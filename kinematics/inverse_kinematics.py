@@ -78,10 +78,8 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
             result = matrix([self.extract_from_T(endpoint)]).T
             # Fehlervektor berechnen
             e = target - result
-            # Fehlerwerte auf max_step constraint
-            # e[e > max_step] = max_step
-            # e[e < -max_step] = -max_step
 
+            # Taken from inverse_kinematics_2d_jacobian.ipynb and modified:
             T = matrix([self.extract_from_T(transform_m) for transform_m in Te[1:]]).T
             J = np.zeros(T.shape)
             dT = result - T
