@@ -62,9 +62,9 @@ class ClientAgent(object):
 
 if __name__ == '__main__':
     agent = ClientAgent()
-    #agent.set_angle("HeadYaw", 90)
-    agent.post.execute_keyframes(hello())
-    print("Test")
-    # TEST CODE HERE
+    print(agent.get_posture())
+    print(agent.execute_keyframes(hello()))
+    print(agent.set_angle("HeadYaw", 90))
+    print(agent.get_angle("HeadYaw"))
 
 

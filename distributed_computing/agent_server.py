@@ -36,6 +36,7 @@ class ServerAgent(InverseKinematicsAgent):
         self.server.register_function(self.execute_keyframes, "execute_keyframes")
         self.server.register_function(self.get_transform, "get_transform")
         self.server.register_function(self.set_transform, "set_transform")
+        self.server.register_function(self.get_posture, "get_posture")
         self.server.register_function(self.hello, "hello")
         self.server_thread = threading.Thread(target=self.server.serve_forever)
         self.server_thread.start()
@@ -65,7 +66,7 @@ class ServerAgent(InverseKinematicsAgent):
     def get_posture(self):
         """return current posture of robot"""
         try:
-            return self.recognize_posture()
+            return self.recognize_posture(self.perception)
         except Exception as e:
             print(e)
             return "error"
