@@ -21,7 +21,7 @@
 
 
 from pid import PIDAgent
-from keyframes import hello as keyframe
+from keyframes import wipe_forehead as keyframe
 from software_installation.spark_agent import Perception
 
 class AngleInterpolationAgent(PIDAgent):
@@ -33,6 +33,7 @@ class AngleInterpolationAgent(PIDAgent):
         super(AngleInterpolationAgent, self).__init__(simspark_ip, simspark_port, teamname, player_id, sync_mode)
         self.keyframes = ([], [], [])
         self.start_time = None
+        self.keyframe_running = False
 
     def think(self, perception):
         target_joints = self.angle_interpolation(self.keyframes, perception)
@@ -68,34 +69,30 @@ class AngleInterpolationAgent(PIDAgent):
                     break
                 time_prev = time
 
-            p0 = 0, perception.joint.get(name)
-            if p0[1] is None:
-                p0 = 0, 0
+            p0 = perception.joint.get(name)
+            if p0 is None:
+                p0 = 0
             p1 = p0
 
+            if current_time_index > 0:  # [float angle, Handle1, Handle2]
+                p0 = keys[current_time_index - 1][0]  # start-point
+                p1 = p0 + keys[current_time_index - 1][2][2]  # start-point Handle angle
+
+            p3 = keys[current_time_index][0]  # dest-point
+            p2 = p3 + keys[current_time_index][1][2]  # dest-point Handle angle
+
             t_diff = time_next - time_prev
+            i = (time_now - time_prev) / t_diff
 
-            h1_a = keys[current_time_index - 1][2][2]  # Handle 1 angle
-            h2_a = keys[current_time_index][1][2]  # Handle 2 angle
-            h1_t = keys[current_time_index - 1][2][1]  # Handle 1 time
-            h2_t = keys[current_time_index][1][1]  # Handle 2 time
-
-            if current_time_index > 0:  # (time, angle)
-                p0 = time_prev, keys[current_time_index - 1][0]  # start-point
-                p1 = time_prev + h1_t, p0[1] + h1_a  # start-point Handle angle
-
-            p3 = time_next, keys[current_time_index][0]  # dest-point
-            p2 = time_next + h2_t, p3[1] + h2_a  # dest-point Handle angle
-
-            bezier_step = (time_now - time_prev) / t_diff
             b = 0
-            b += (1 - bezier_step) ** 3 * p0[0]
-            b += (1 - bezier_step) ** 2 * 3 * bezier_step * p1[0]
-            b += (1 - bezier_step) * 3 * (bezier_step ** 2) * p2[0]
-            b += (bezier_step ** 3) * p3[0]
+            b += (1-i)**3 * p0
+            b += (1-i)**2 * 3*i*p1
+            b += (1-i) * 3*(i**2)*p2
+            b += (i**3)*p3
 
             target_joints[name] = b
 
+        self.keyframe_running = len(name_list) > len(finished_joints)
         return target_joints
 
 

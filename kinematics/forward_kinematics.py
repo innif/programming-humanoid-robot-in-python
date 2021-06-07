@@ -123,8 +123,6 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
             T += M
         return T
 
-
-
     def forward_kinematics(self, joints):
         """forward kinematics
 
