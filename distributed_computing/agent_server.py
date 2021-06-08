@@ -19,6 +19,8 @@ import os
 import sys
 import time
 
+import numpy as np
+
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'kinematics'))
 
 from kinematics.inverse_kinematics import InverseKinematicsAgent
@@ -90,9 +92,8 @@ class ServerAgent(InverseKinematicsAgent):
 
     def set_transform(self, effector_name, transform):
         """ solve the inverse kinematics and control joints use the results """
-        super(ServerAgent, self).set_transforms(effector_name, transform)
         try:
-            super(ServerAgent, self).set_transforms(effector_name, transform)
+            super(ServerAgent, self).set_transforms(effector_name, np.array(transform))
             return "success"
         except Exception as e:
             print(e)
