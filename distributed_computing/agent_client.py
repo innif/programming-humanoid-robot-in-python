@@ -60,16 +60,19 @@ class ClientAgent(object):
 
     def set_transform(self, effector_name, transform):
         """ solve the inverse kinematics and control joints use the results """
+        if isinstance(transform, np.ndarray):
+            transform = transform.tolist()
         return self.proxy.set_transform(effector_name, transform)
 
 
 if __name__ == '__main__':
     agent = ClientAgent()
-    #print(agent.get_posture())
-    #print(agent.execute_keyframes(hello()))
-    #print(agent.set_angle("HeadYaw", 90))
-    #print(agent.get_angle("HeadYaw"))
+    print(agent.get_posture())
+    print(agent.set_angle("HeadYaw", 90))
+    print(agent.get_angle("HeadYaw"))
     print(agent.get_transform("LElbowYaw"))
+    print(agent.set_transform("LArm", agent.get_transform("LElbowYaw")))
+    print(agent.execute_keyframes(hello()))
 
 
 

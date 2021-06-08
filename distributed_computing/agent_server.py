@@ -83,15 +83,16 @@ class ServerAgent(InverseKinematicsAgent):
     def get_transform(self, name):
         """ get transform with given name """
         try:
-            return self.transforms.get(name).tolist() #TODO
+            return self.transforms.get(name).tolist()
         except Exception as e:
             print(e)
             return "error"
 
     def set_transform(self, effector_name, transform):
         """ solve the inverse kinematics and control joints use the results """
+        super(ServerAgent, self).set_transforms(effector_name, transform)
         try:
-            super(ServerAgent, self).set_transform(effector_name, transform)
+            super(ServerAgent, self).set_transforms(effector_name, transform)
             return "success"
         except Exception as e:
             print(e)
