@@ -10,6 +10,9 @@ In this file you need to implement remote procedure call (RPC) client
 import threading
 import weakref
 import xmlrpc.client
+
+import numpy as np
+
 from joint_control.keyframes import hello
 
 
@@ -53,7 +56,7 @@ class ClientAgent(object):
 
     def get_transform(self, name):
         """ get transform with given name """
-        return self.proxy.get_transform(name)
+        return np.array(self.proxy.get_transform(name))
 
     def set_transform(self, effector_name, transform):
         """ solve the inverse kinematics and control joints use the results """
@@ -62,9 +65,11 @@ class ClientAgent(object):
 
 if __name__ == '__main__':
     agent = ClientAgent()
-    print(agent.get_posture())
-    print(agent.execute_keyframes(hello()))
-    print(agent.set_angle("HeadYaw", 90))
-    print(agent.get_angle("HeadYaw"))
+    #print(agent.get_posture())
+    #print(agent.execute_keyframes(hello()))
+    #print(agent.set_angle("HeadYaw", 90))
+    #print(agent.get_angle("HeadYaw"))
+    print(agent.get_transform("LElbowYaw"))
+
 
 

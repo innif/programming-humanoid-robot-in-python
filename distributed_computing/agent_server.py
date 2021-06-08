@@ -78,11 +78,12 @@ class ServerAgent(InverseKinematicsAgent):
         self.keyframes = keyframes
         while self.keyframe_running:
             time.sleep(0.01)
+        return "success"
 
     def get_transform(self, name):
         """ get transform with given name """
         try:
-            return self.transforms[name]
+            return self.transforms.get(name).tolist() #TODO
         except Exception as e:
             print(e)
             return "error"
